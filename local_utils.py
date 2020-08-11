@@ -122,7 +122,6 @@ def reconstruct(I, Iresized, Yr, lp_threshold):
     # 4 max-pooling layers, stride = 2
     net_stride = 2**4
     side = ((208 + 40)/2)/net_stride
-
     # one line and two lines license plate size
     one_line = (470, 110)
     two_lines = (280, 200)
@@ -170,8 +169,9 @@ def reconstruct(I, Iresized, Yr, lp_threshold):
     final_labels_frontal = nms(labels_frontal, 0.1)
 
     #print(final_labels_frontal)
-    assert final_labels_frontal, "No License plate is founded!"
-
+    try:
+        assert final_labels_frontal, "No License plate is founded!"
+    except: return [],[],[],[]
     # LP size and type
     out_size, lp_type = (two_lines, 2) if ((final_labels_frontal[0].wh()[0] / final_labels_frontal[0].wh()[1]) < 1.7) else (one_line, 1)
 
@@ -189,6 +189,7 @@ def reconstruct(I, Iresized, Yr, lp_threshold):
     return final_labels, TLp, lp_type, Cor
 
 def detect_lp(model, I, max_dim, lp_threshold):
+    #print('----------------- in detect_lp')
     min_dim_img = min(I.shape[:2])
     factor = float(max_dim) / min_dim_img
     w, h = (np.array(I.shape[1::-1], dtype=float) * factor).astype(int).tolist()
